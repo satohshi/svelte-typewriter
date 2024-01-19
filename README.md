@@ -30,4 +30,5 @@ npm i -D svelte-typewrite
 | deleteSpeed | `number` | `40` | How fast the text is deleted (in ms/char) |
 | blinkDuration | `number` | `300` | How long the pipe is displayed each "blink" (in ms) |
 | blinkCount | `number` | `3` | How many times the pipe is displayed after the text is typed |
-| waitBetweenTexts | `number` | `150` | How long to wait before starting to type the next text (in ms) |
+| waitBetweenTexts | `number` | `150` | How long to wait before starting to type the next text (in ms). Will be ignored if blinksBetweenTexts >= 0 |
+| blinksBetweenTexts | `number` | `0` | How many times the pipe is displayed before starting to type the next text |
