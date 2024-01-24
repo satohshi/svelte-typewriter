@@ -1,4 +1,22 @@
 <script lang="ts">
+	type Props = {
+		texts: string[] // Array of strings to be displayed
+		repeat?: number // Set to 0 for infinite loop.
+		typeSpeed?: number // How fast the text is typed (in ms/char)
+		deleteSpeed?: number // How fast the text is deleted (in ms/char)
+		blinkDuration?: number // How long the pipe is displayed each "blink" (in ms)
+		blinkCount?: number // How many times the pipe is displayed after the text is typed
+	} & (
+		| {
+				waitBetweenTexts?: number // How long to wait before starting to type the next text (in ms)
+				blinksBetweenTexts?: never
+		  }
+		| {
+				waitBetweenTexts?: never
+				blinksBetweenTexts: number // How many times the pipe is displayed between texts
+		  }
+	)
+
 	let {
 		texts,
 		repeat = 0,
@@ -8,16 +26,7 @@
 		blinkCount = 3,
 		waitBetweenTexts = 150,
 		blinksBetweenTexts = 0,
-	} = $props<{
-		texts: string[] // Array of strings to be displayed
-		repeat?: number // Set to 0 for infinite loop.
-		typeSpeed?: number // How fast the text is typed (in ms/char)
-		deleteSpeed?: number // How fast the text is deleted (in ms/char)
-		blinkDuration?: number // How long the pipe is displayed each "blink" (in ms)
-		blinkCount?: number // How many times the pipe is displayed after the text is typed
-		waitBetweenTexts?: number // How long to wait before starting to type the next text (in ms)
-		blinksBetweenTexts?: number // How many times the pipe is displayed between texts
-	}>()
+	} = $props<Props>()
 
 	let textDisplayed = $state('|')
 	let span = $state<HTMLSpanElement>()
