@@ -1,5 +1,11 @@
 # svelte-typewrite
 
+## 1.1.2
+
+### Patch Changes
+
+- 3b5cfb8: prevent bad props at type level
+
 ## 1.1.1
 
 ### Patch Changes
