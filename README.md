@@ -1,6 +1,6 @@
 # Svelte Typewriter
 
-Simple typewriter component for Svelte using runes
+Typewriter component for Svelte that actually "types" one character at a time instead of just moving the caret at linear speed.
 
 ![](preview.gif)
 
