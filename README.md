@@ -24,11 +24,11 @@ npm i -D svelte-typewrite
 
 | Name | Type | Default value | Description |
 | --- | --- | --- | --- |
-| texts | `string[]` | `null` | Array of strings to be displayed |
-| repeat | `number` | `0` | How many times texts should be looped over (`0` for infinite loop) |
-| typeSpeed | `number` | `60` | How fast the text is typed (in ms/char) |
-| deleteSpeed | `number` | `40` | How fast the text is deleted (in ms/char) |
-| blinkDuration | `number` | `300` | How long the pipe is displayed each "blink" (in ms) |
-| blinkCount | `number` | `3` | How many times the pipe is displayed after the text is typed |
-| waitBetweenTexts | `number` | `150` | How long to wait before starting to type the next text (in ms). Will be ignored if blinksBetweenTexts >= 0 |
-| blinksBetweenTexts | `number` | `0` | How many times the pipe is displayed before starting to type the next text |
+| texts | `string[]` | `undefined` | Array of strings to be displayed |
+| repeat | `number` | `0` | How many times `texts` should be looped over (`0` for infinite loop) |
+| typeSpeed | `number` | `60` | Speed at which the text is typed (in ms/char) |
+| deleteSpeed | `number` | `40` | Speed at which the text is deleted (in ms/char) |
+| blinkDuration | `number` | `600` | Duration of each "blink" of caret (in ms) |
+| blinkCount | `number` | `3` | Number of blinks after the text is typed |
+| waitBetweenTexts | `number` | `150` | How long to wait before starting to type the next text (in ms).<br> Will be ignored if `blinksBetweenTexts > 0` |
+| blinksBetweenTexts | `number` | `0` | How many times the caret should blink before starting to type the next text |
