@@ -1,5 +1,15 @@
 # svelte-typewrite
 
+## 1.2.0
+
+### Minor Changes
+
+- 2a037d8: `blinkDuration` now refers to the entire duration of the blink animation
+
+### Patch Changes
+
+- c2d3f4f: Blink using CSS animation instead of JS
+
 ## 1.1.2
 
 ### Patch Changes
