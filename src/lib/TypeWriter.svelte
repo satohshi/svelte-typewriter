@@ -22,19 +22,20 @@
 		repeat = 0,
 		typeSpeed = 60,
 		deleteSpeed = 40,
-		blinkDuration = 300,
+		blinkDuration = 600,
 		blinkCount = 3,
 		waitBetweenTexts = 150,
 		blinksBetweenTexts = 0,
 	} = $props<Props>()
 
-	let textDisplayed = $state('|')
-	let span = $state<HTMLSpanElement>()
+	let textDisplayed = $state(' ')
+	let container = $state<HTMLSpanElement>()
+	let caret = $state<HTMLSpanElement>()
 
-	// Current timeout to be cleared when the component is destroyed
 	let timeout: ReturnType<typeof setTimeout>
 
 	$effect(() => {
+		caret!.style.setProperty('--blink-duration', `${blinkDuration}ms`)
 		typewriter(texts, repeat)
 		return () => clearTimeout(timeout)
 	})
@@ -46,44 +47,29 @@
 	}
 
 	const blink = async (count: number) => {
-		// Prevents the span from shrinking when the pipe is removed.
-		span!.style.width = `${span!.clientWidth + 1}px` // Don't question the + 1. It sometimes works without it, but sometimes doesn't.
-
-		await sleep(blinkDuration / 2)
-
-		for (let i = 0; i < count; i++) {
-			textDisplayed = textDisplayed.slice(0, -1)
-			await sleep(blinkDuration)
-
-			// Prevents the last iteration from adding a pipe
-			if (i === count - 1) break
-
-			textDisplayed += '|'
-			await sleep(blinkDuration)
-		}
-
-		span!.style.width = 'auto'
+		await sleep(blinkDuration / 4)
+		caret!.classList.add('blink')
+		await sleep(blinkDuration * (count - 0.5)) // 0.5 so the pipe is transparent at the end
+		caret!.classList.remove('blink')
 	}
 
 	async function typewriter(textArr: string[], iterations: number) {
 		if (!textArr.length) return
 
 		for (let i = 0; iterations === 0 || i < iterations; i++) {
-			for (let j = 0; j < textArr.length; j++) {
-				const text = textArr[j]!
-
+			for (const text of textArr) {
 				// Type text
-				for (let k = 1; k <= text.length; k++) {
-					textDisplayed = text.slice(0, k) + '|'
+				for (let k = 0; k <= text.length; k++) {
+					textDisplayed = text.slice(0, k)
 					await sleep(typeSpeed)
 				}
 
-				// Blink for a while before deleting text
+				// Blink for specified duration
 				await blink(blinkCount)
 
 				// Delete text
-				for (let k = 1; k <= text.length; k++) {
-					textDisplayed = text.slice(0, text.length - k) + '|'
+				for (let k = 0; k <= text.length; k++) {
+					textDisplayed = text.slice(0, text.length - k)
 					await sleep(deleteSpeed)
 				}
 
@@ -97,4 +83,23 @@
 	}
 </script>
 
-<span bind:this={span}>{textDisplayed}</span>
+<span bind:this={container}>{textDisplayed}<span bind:this={caret}>|</span></span>
+
+<style>
+	/* using :is() so svelte won't remove it thinking it is unused */
+	:is(.blink) {
+		animation: blink var(--blink-duration) step-start infinite;
+	}
+
+	@keyframes blink {
+		0% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+</style>
