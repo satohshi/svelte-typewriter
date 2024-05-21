@@ -26,16 +26,14 @@
 		blinkCount = 3,
 		waitBetweenTexts = 150,
 		blinksBetweenTexts = 0,
-	} = $props<Props>()
+	}: Props = $props()
 
 	let textDisplayed = $state(' ')
-	let container = $state<HTMLSpanElement>()
-	let caret = $state<HTMLSpanElement>()
+	let blinking = $state(false)
 
 	let timeout: ReturnType<typeof setTimeout>
 
 	$effect(() => {
-		caret!.style.setProperty('--blink-duration', `${blinkDuration}ms`)
 		typewriter(texts, repeat)
 		return () => clearTimeout(timeout)
 	})
@@ -48,9 +46,9 @@
 
 	const blink = async (count: number) => {
 		await sleep(blinkDuration / 4)
-		caret!.classList.add('blink')
+		blinking = true
 		await sleep(blinkDuration * (count - 0.5)) // 0.5 so the pipe is transparent at the end
-		caret!.classList.remove('blink')
+		blinking = false
 	}
 
 	async function typewriter(textArr: string[], iterations: number) {
@@ -83,11 +81,11 @@
 	}
 </script>
 
-<span bind:this={container}>{textDisplayed}<span bind:this={caret}>|</span></span>
+<span>{textDisplayed}<span class:blinking style="--blink-duration: {blinkDuration}ms">|</span></span
+>
 
 <style>
-	/* using :is() so svelte won't remove it thinking it is unused */
-	:is(.blink) {
+	.blinking {
 		animation: blink var(--blink-duration) step-start infinite;
 	}
 
