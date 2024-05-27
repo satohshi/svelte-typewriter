@@ -1,5 +1,11 @@
 # svelte-typewrite
 
+## 1.2.2
+
+### Patch Changes
+
+- 6cc2b3a: use getAnimations instead of setTimeout for better sync
+
 ## 1.2.1
 
 ### Patch Changes
