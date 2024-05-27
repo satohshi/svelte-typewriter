@@ -1,5 +1,11 @@
 # svelte-typewrite
 
+## 1.2.1
+
+### Patch Changes
+
+- 3bc6c8d: update deps and refactor
+
 ## 1.2.0
 
 ### Minor Changes
