@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { tick } from 'svelte'
+
 	type Props = {
 		texts: string[] // Array of strings to be displayed
 		repeat?: number // Set to 0 for infinite loop.
@@ -25,11 +27,13 @@
 		blinkDuration = 600,
 		blinkCount = 3,
 		waitBetweenTexts = 150,
-		blinksBetweenTexts = 0,
+		blinksBetweenTexts,
 	}: Props = $props()
 
-	let textDisplayed = $state(' ')
+	let caret: HTMLSpanElement
 	let blinking = $state(false)
+	let iteration = $state(blinkCount - 0.5)
+	let textDisplayed = $state(' ')
 
 	let timeout: ReturnType<typeof setTimeout>
 
@@ -44,10 +48,10 @@
 		})
 	}
 
-	const blink = async (count: number) => {
-		await sleep(blinkDuration / 4)
+	const blink = async () => {
 		blinking = true
-		await sleep(blinkDuration * (count - 0.5)) // 0.5 so the pipe is transparent at the end
+		await tick()
+		await Promise.all(caret.getAnimations().map((a) => a.finished))
 		blinking = false
 	}
 
@@ -63,7 +67,7 @@
 				}
 
 				// Blink for specified duration
-				await blink(blinkCount)
+				await blink()
 
 				// Delete text
 				for (let k = 0; k <= text.length; k++) {
@@ -74,19 +78,27 @@
 				if (!blinksBetweenTexts) {
 					await sleep(waitBetweenTexts)
 				} else {
-					await blink(blinksBetweenTexts)
+					iteration = blinksBetweenTexts
+					await blink()
+					iteration = blinkCount - 0.5
 				}
 			}
 		}
 	}
 </script>
 
-<span>{textDisplayed}<span class:blinking style="--blink-duration: {blinkDuration}ms">|</span></span
+<span
+	>{textDisplayed}<span
+		bind:this={caret}
+		class:blinking
+		style="--blink-duration: {blinkDuration}ms; --blink-count: {iteration};">|</span
+	></span
 >
 
 <style>
 	.blinking {
-		animation: blink var(--blink-duration) step-start infinite;
+		animation: blink var(--blink-duration) step-start calc(var(--blink-duration) / 4)
+			var(--blink-count);
 	}
 
 	@keyframes blink {
