@@ -8,6 +8,9 @@
 		deleteSpeed?: number // How fast the text is deleted (in ms/char)
 		blinkDuration?: number // How long the pipe is displayed each "blink" (in ms)
 		blinkCount?: number // How many times the pipe is displayed after the text is typed
+		onTextStart?: (index: number) => void // allback whenever the text animation starts. `index` of current `text` in `texts` is passed as paramater to the callback function.
+		onTextEnd?: (index: number) => void // Callback whenever the text animation ends. `index` of current `text` in `texts` is passed as paramater to the callback function.
+		onTextDeleted?: (index: number) => void // Callback whenever the text has been deleted. `index` of current `text` in `texts` is passed as paramater to the callback function.
 	} & (
 		| {
 				waitBetweenTexts?: number // How long to wait before starting to type the next text (in ms)
@@ -28,6 +31,9 @@
 		blinkCount = 3,
 		waitBetweenTexts = 150,
 		blinksBetweenTexts,
+		onTextStart = (_) => {},
+		onTextEnd = (_) => {},
+		onTextDeleted = (_) => {},
 	}: Props = $props()
 
 	let caret: HTMLSpanElement
@@ -59,12 +65,19 @@
 		if (!textArr.length) return
 
 		for (let i = 0; iterations === 0 || i < iterations; i++) {
-			for (const text of textArr) {
+			for (let j = 0; j < textArr.length; j++) {
+				// Callback
+				onTextStart(j)
+
+				const text = textArr[j]
 				// Type text
 				for (let k = 0; k <= text.length; k++) {
 					textDisplayed = text.slice(0, k)
 					await sleep(typeSpeed)
 				}
+
+				// Callback
+				onTextEnd(j)
 
 				// Blink for specified duration
 				await blink()
@@ -74,6 +87,9 @@
 					textDisplayed = text.slice(0, text.length - k)
 					await sleep(deleteSpeed)
 				}
+
+				// Callback
+				onTextDeleted(j)
 
 				if (!blinksBetweenTexts) {
 					await sleep(waitBetweenTexts)
