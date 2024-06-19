@@ -8,9 +8,10 @@
 		deleteSpeed?: number // How fast the text is deleted (in ms/char)
 		blinkDuration?: number // How long the pipe is displayed each "blink" (in ms)
 		blinkCount?: number // How many times the pipe is displayed after the text is typed
-		onTextStart?: (index: number) => void // allback whenever the text animation starts. `index` of current `text` in `texts` is passed as paramater to the callback function.
-		onTextEnd?: (index: number) => void // Callback whenever the text animation ends. `index` of current `text` in `texts` is passed as paramater to the callback function.
-		onTextDeleted?: (index: number) => void // Callback whenever the text has been deleted. `index` of current `text` in `texts` is passed as paramater to the callback function.
+		ontypestart?: (index: number) => void // allback whenever the text animation starts. `index` of current `text` in `texts` is passed as paramater to the callback function.
+		ontypeend?: (index: number) => void // Callback whenever the text animation ends. `index` of current `text` in `texts` is passed as paramater to the callback function.
+		ondeletestart?: (index: number) => void // Callback whenever the text deletion starts. `index` of current `text` in `texts` is passed as paramater to the callback function.
+		ondeleteend?: (index: number) => void // Callback whenever the text has been deleted. `index` of current `text` in `texts` is passed as paramater to the callback function.
 	} & (
 		| {
 				waitBetweenTexts?: number // How long to wait before starting to type the next text (in ms)
@@ -31,9 +32,10 @@
 		blinkCount = 3,
 		waitBetweenTexts = 150,
 		blinksBetweenTexts,
-		onTextStart = (_) => {},
-		onTextEnd = (_) => {},
-		onTextDeleted = (_) => {},
+		ontypestart,
+		ontypeend,
+		ondeletestart,
+		ondeleteend,
 	}: Props = $props()
 
 	let caret: HTMLSpanElement
@@ -66,10 +68,10 @@
 
 		for (let i = 0; iterations === 0 || i < iterations; i++) {
 			for (let j = 0; j < textArr.length; j++) {
-				// Callback
-				onTextStart(j)
-
 				const text = textArr[j]
+
+				// Callback
+				ontypestart?.(j)
 				// Type text
 				for (let k = 0; k <= text.length; k++) {
 					textDisplayed = text.slice(0, k)
@@ -77,10 +79,13 @@
 				}
 
 				// Callback
-				onTextEnd(j)
+				ontypeend?.(j)
 
 				// Blink for specified duration
 				await blink()
+
+				// Callback
+				ondeletestart?.(j)
 
 				// Delete text
 				for (let k = 0; k <= text.length; k++) {
@@ -89,7 +94,7 @@
 				}
 
 				// Callback
-				onTextDeleted(j)
+				ondeleteend?.(j)
 
 				if (!blinksBetweenTexts) {
 					await sleep(waitBetweenTexts)
