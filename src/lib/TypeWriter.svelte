@@ -59,7 +59,7 @@
 	const blink = async () => {
 		blinking = true
 		await tick()
-		await Promise.all(caret.getAnimations().map((a) => a.finished))
+		await Promise.allSettled(caret.getAnimations().map((a) => a.finished))
 		blinking = false
 	}
 
