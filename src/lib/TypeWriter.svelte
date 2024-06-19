@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { tick } from 'svelte'
-
 	type Props = {
 		texts: string[] // Array of strings to be displayed
 		repeat?: number // Set to 0 for infinite loop.
@@ -8,10 +6,10 @@
 		deleteSpeed?: number // How fast the text is deleted (in ms/char)
 		blinkDuration?: number // How long the pipe is displayed each "blink" (in ms)
 		blinkCount?: number // How many times the pipe is displayed after the text is typed
-		ontypestart?: (index: number) => void // allback whenever the text animation starts. `index` of current `text` in `texts` is passed as paramater to the callback function.
-		ontypeend?: (index: number) => void // Callback whenever the text animation ends. `index` of current `text` in `texts` is passed as paramater to the callback function.
-		ondeletestart?: (index: number) => void // Callback whenever the text deletion starts. `index` of current `text` in `texts` is passed as paramater to the callback function.
-		ondeleteend?: (index: number) => void // Callback whenever the text has been deleted. `index` of current `text` in `texts` is passed as paramater to the callback function.
+		ontypestart?: (index: number) => void // Callback function that runs when typing animation starts. Receives the index of the text being typed
+		ontypeend?: (index: number) => void // Callback function that runs when typing animation ends. Receives the index of the text that was just typed
+		ondeletestart?: (index: number) => void // Callback function that runs when deleting animation starts. Receives the index of the text being deleted
+		ondeleteend?: (index: number) => void // Callback function that runs when deleting animation ends. Receives the index of the text that was just deleted
 	} & (
 		| {
 				waitBetweenTexts?: number // How long to wait before starting to type the next text (in ms)
@@ -39,10 +37,7 @@
 	}: Props = $props()
 
 	let caret: HTMLSpanElement
-	let blinking = $state(false)
-	let iteration = $state(blinkCount - 0.5)
 	let textDisplayed = $state(' ')
-
 	let timeout: ReturnType<typeof setTimeout>
 
 	$effect(() => {
@@ -56,11 +51,13 @@
 		})
 	}
 
-	const blink = async () => {
-		blinking = true
-		await tick()
-		await Promise.allSettled(caret.getAnimations().map((a) => a.finished))
-		blinking = false
+	const blink = async (iterations: number) => {
+		await caret.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
+			iterations,
+			duration: blinkDuration,
+			delay: blinkDuration / 4,
+			easing: 'steps(2)',
+		}).finished
 	}
 
 	async function typewriter(textArr: string[], iterations: number) {
@@ -70,67 +67,34 @@
 			for (let j = 0; j < textArr.length; j++) {
 				const text = textArr[j]
 
-				// Callback
-				ontypestart?.(j)
 				// Type text
+				ontypestart?.(j)
 				for (let k = 0; k <= text.length; k++) {
 					textDisplayed = text.slice(0, k)
 					await sleep(typeSpeed)
 				}
-
-				// Callback
 				ontypeend?.(j)
 
 				// Blink for specified duration
-				await blink()
-
-				// Callback
-				ondeletestart?.(j)
+				await blink(blinkCount - 0.5)
 
 				// Delete text
+				ondeletestart?.(j)
 				for (let k = 0; k <= text.length; k++) {
 					textDisplayed = text.slice(0, text.length - k)
 					await sleep(deleteSpeed)
 				}
-
-				// Callback
 				ondeleteend?.(j)
 
+				// Wait before typing the next text
 				if (!blinksBetweenTexts) {
 					await sleep(waitBetweenTexts)
 				} else {
-					iteration = blinksBetweenTexts
-					await blink()
-					iteration = blinkCount - 0.5
+					await blink(blinksBetweenTexts)
 				}
 			}
 		}
 	}
 </script>
 
-<span
-	>{textDisplayed}<span
-		bind:this={caret}
-		class:blinking
-		style="--blink-duration: {blinkDuration}ms; --blink-count: {iteration};">|</span
-	></span
->
-
-<style>
-	.blinking {
-		animation: blink var(--blink-duration) step-start calc(var(--blink-duration) / 4)
-			var(--blink-count);
-	}
-
-	@keyframes blink {
-		0% {
-			opacity: 1;
-		}
-		50% {
-			opacity: 0;
-		}
-		100% {
-			opacity: 1;
-		}
-	}
-</style>
+<span>{textDisplayed}<span bind:this={caret}>|</span></span>
