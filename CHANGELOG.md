@@ -1,5 +1,11 @@
 # svelte-typewrite
 
+## 1.3.0
+
+### Minor Changes
+
+- ea15807: Add callbacks: `ontypestart`, `ontypeend`, `ondeletestart`, `ondeleteend`
+
 ## 1.2.2
 
 ### Patch Changes
