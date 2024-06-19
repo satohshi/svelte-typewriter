@@ -12,7 +12,7 @@ npm i svelte-typewrite
 
 ## Usage
 
-```js
+```svelte
 <script>
     import { TypeWriter } from 'svelte-typewrite'
 </script>
