@@ -42,7 +42,10 @@
 	let blinking: Animation
 
 	$effect(() => {
-		typewriter(texts, repeat).catch(() => {})
+		typewriter(texts, repeat).catch((e: unknown) => {
+			if (e instanceof DOMException && e.name === 'AbortError') return
+			console.error(e)
+		})
 		return () => {
 			blinking?.cancel()
 			clearTimeout(timeout)
@@ -55,8 +58,8 @@
 		})
 	}
 
-	const blink = async (iterations: number) => {
-		blinking = await caret.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
+	const blink = (iterations: number) => {
+		blinking = caret.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
 			iterations,
 			duration: blinkDuration,
 			delay: blinkDuration / 4,
