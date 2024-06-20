@@ -59,7 +59,10 @@
 	const blink = (iterations: number) =>
 		new Promise<void>(async (resolve, reject) => {
 			blinkController = new AbortController()
-			const callback = () => reject(new DOMException('Blink aborted ', 'AbortError'))
+			const callback = () => {
+				blinkController.signal.removeEventListener('abort', callback)
+				reject(new DOMException('Blink aborted ', 'AbortError'))
+			}
 			blinkController.signal.addEventListener('abort', callback)
 
 			await caret.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
