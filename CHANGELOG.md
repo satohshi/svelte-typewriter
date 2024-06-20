@@ -1,5 +1,12 @@
 # svelte-typewrite
 
+## 1.3.1
+
+### Patch Changes
+
+- f6ab284: handle all animations in js to avoid defining otherwise unnecessary variables
+- 1c5e843: Stop animation errors from bubbling up
+
 ## 1.3.0
 
 ### Minor Changes
