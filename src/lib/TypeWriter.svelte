@@ -40,9 +40,15 @@
 	let textDisplayed = $state(' ')
 	let timeout: ReturnType<typeof setTimeout>
 
+	let blinkController: AbortController
+
 	$effect(() => {
-		typewriter(texts, repeat)
-		return () => clearTimeout(timeout)
+		typewriter(texts, repeat).catch((_) => {})
+		return () => {
+			textDisplayed = ' '
+			blinkController?.abort()
+			clearTimeout(timeout)
+		}
 	})
 
 	const sleep = (ms: number) => {
@@ -51,14 +57,22 @@
 		})
 	}
 
-	const blink = async (iterations: number) => {
-		await caret.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
-			iterations,
-			duration: blinkDuration,
-			delay: blinkDuration / 4,
-			easing: 'steps(2)',
-		}).finished
-	}
+	const blink = (iterations: number) =>
+		new Promise<void>(async (resolve, reject) => {
+			blinkController = new AbortController()
+			const callback = () => reject(new DOMException('Blink aborted ', 'AbortError'))
+			blinkController.signal.addEventListener('abort', callback)
+
+			await caret.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
+				iterations,
+				duration: blinkDuration,
+				delay: blinkDuration / 4,
+				easing: 'steps(2)',
+			}).finished
+
+			blinkController.signal.removeEventListener('abort', callback)
+			resolve()
+		})
 
 	async function typewriter(textArr: string[], iterations: number) {
 		if (!textArr.length) return
