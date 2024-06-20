@@ -45,7 +45,6 @@
 	$effect(() => {
 		typewriter(texts, repeat).catch((_) => {})
 		return () => {
-			textDisplayed = ' '
 			blinkController?.abort()
 			clearTimeout(timeout)
 		}
