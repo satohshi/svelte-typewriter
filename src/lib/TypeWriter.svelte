@@ -42,7 +42,7 @@
 	let blinking: Animation
 
 	$effect(() => {
-		typewriter(texts, repeat).catch((_) => {})
+		typewriter(texts, repeat).catch(() => {})
 		return () => {
 			blinking?.cancel()
 			clearTimeout(timeout)

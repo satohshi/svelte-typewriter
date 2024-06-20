@@ -14,7 +14,7 @@ npm i svelte-typewrite
 
 ```svelte
 <script>
-    import { TypeWriter } from 'svelte-typewrite'
+	import { TypeWriter } from 'svelte-typewrite'
 </script>
 
 <TypeWriter texts={['lorem ipsum', 'dolor sit amet']} />
