@@ -1,15 +1,25 @@
-<script lang="ts">
+<script lang="ts" generics="Texts extends readonly string[]">
+	type Index = {
+		[K in keyof Texts]: number extends K
+			? // Text is array
+				number
+			: // Text is tuple
+				K extends `${infer N extends number}`
+				? N
+				: never
+	}[number]
+
 	type Props = {
-		texts: string[] // Array of strings to be displayed
+		texts: Texts // Array of strings to be displayed
 		repeat?: number // Set to 0 for infinite loop.
 		typeSpeed?: number // How fast the text is typed (in ms/char)
 		deleteSpeed?: number // How fast the text is deleted (in ms/char)
 		blinkDuration?: number // How long the pipe is displayed each "blink" (in ms)
 		blinkCount?: number // How many times the pipe is displayed after the text is typed
-		ontypestart?: (index: number) => void // Callback function that runs when typing animation starts. Receives the index of the text being typed
-		ontypeend?: (index: number) => void // Callback function that runs when typing animation ends. Receives the index of the text that was just typed
-		ondeletestart?: (index: number) => void // Callback function that runs when deleting animation starts. Receives the index of the text being deleted
-		ondeleteend?: (index: number) => void // Callback function that runs when deleting animation ends. Receives the index of the text that was just deleted
+		ontypestart?: (index: Index) => void // Callback function that runs when typing animation starts. Receives the index of the text being typed
+		ontypeend?: (index: Index) => void // Callback function that runs when typing animation ends. Receives the index of the text that was just typed
+		ondeletestart?: (index: Index) => void // Callback function that runs when deleting animation starts. Receives the index of the text being deleted
+		ondeleteend?: (index: Index) => void // Callback function that runs when deleting animation ends. Receives the index of the text that was just deleted
 	} & (
 		| {
 				waitBetweenTexts?: number // How long to wait before starting to type the next text (in ms)
@@ -17,7 +27,7 @@
 		  }
 		| {
 				waitBetweenTexts?: never
-				blinksBetweenTexts: number // How many times the pipe is displayed between texts
+				blinksBetweenTexts?: number // How many times the pipe is displayed between texts
 		  }
 	)
 
@@ -66,12 +76,12 @@
 		}).finished
 	}
 
-	async function typewriter(textArr: string[], iterations: number) {
+	async function typewriter(textArr: Texts, iterations: number) {
 		if (!textArr.length) return
 
 		for (let i = 0; iterations === 0 || i < iterations; i++) {
 			for (let j = 0; j < textArr.length; j++) {
-				const text = textArr[j]
+				const text = textArr[j]!
 
 				// Type text
 				ontypestart?.(j)
