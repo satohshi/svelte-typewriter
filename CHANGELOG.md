@@ -1,5 +1,11 @@
 # svelte-typewrite
 
+## 1.3.2
+
+### Patch Changes
+
+- 85007eb: fix: previous texts are still in memory after changing texts property
+
 ## 1.3.1
 
 ### Patch Changes
