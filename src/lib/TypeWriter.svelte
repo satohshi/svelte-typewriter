@@ -39,7 +39,6 @@
 	let caret: HTMLSpanElement
 	let textDisplayed = $state(' ')
 	let timeout: ReturnType<typeof setTimeout>
-	let blinking: Animation
 
 	$effect(() => {
 		typewriter(texts, repeat).catch((e: unknown) => {
@@ -47,7 +46,7 @@
 			console.error(e)
 		})
 		return () => {
-			blinking?.cancel()
+			caret.getAnimations().forEach((a) => a.cancel())
 			clearTimeout(timeout)
 		}
 	})
@@ -59,13 +58,12 @@
 	}
 
 	const blink = (iterations: number) => {
-		blinking = caret.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
+		return caret.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
 			iterations,
 			duration: blinkDuration,
 			delay: blinkDuration / 4,
 			easing: 'steps(2)',
-		})
-		return blinking.finished
+		}).finished
 	}
 
 	async function typewriter(textArr: string[], iterations: number) {
