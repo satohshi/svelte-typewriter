@@ -1,4 +1,4 @@
-<script lang="ts" generics="Texts extends readonly string[]">
+<script lang="ts" generics="Texts extends readonly string[], Repeat extends number">
 	type Index = {
 		[K in keyof Texts]: number extends K
 			? // Text is array
@@ -9,11 +9,16 @@
 				: never
 	}[number]
 
+	interface EndState {
+		/** Whether to leave the text typed or deleted */
+		text: 'typed' | 'deleted'
+		/** Whether to leave the caret visible, hidden, or blinking */
+		caret: 'visible' | 'hidden' | 'blink'
+	}
+
 	type Props = {
 		/** Array of strings to be displayed */
 		texts: Texts
-		/** Number of times to iterate through the texts. `0` for indefinitely */
-		repeat?: number
 		/** How fast the text is typed (in `ms/char`) */
 		typeSpeed?: number
 		/** How fast the text is deleted (in `ms/char`) */
@@ -41,11 +46,23 @@
 				/** How many times the pipe is displayed between texts */
 				blinksBetweenTexts?: number
 		  }
-	)
+	) &
+		({
+			/** Number of times to iterate through the texts. `0` for indefinitely */
+			repeat?: Repeat
+		} & (0 extends Repeat // When the `repeat` prop isn't passed, `Repeat` is `number`, so we need to do `0 extends Repeat` instead of `Repeat extends 0 | undefined`
+			? {
+					endState?: never
+				}
+			: {
+					/** Options for the end state of animation */
+					endState: EndState
+				}))
 
 	let {
 		texts,
-		repeat = 0,
+		repeat,
+		endState,
 		typeSpeed = 60,
 		deleteSpeed = 40,
 		blinkDuration = 600,
@@ -63,7 +80,7 @@
 	let timeout: ReturnType<typeof setTimeout>
 
 	$effect(() => {
-		typewriter(texts, repeat).catch((e: unknown) => {
+		typewriter(texts, repeat ?? 0).catch((e: unknown) => {
 			if (e instanceof DOMException && e.name === 'AbortError') return
 			console.error(e)
 		})
@@ -88,11 +105,20 @@
 		}).finished
 	}
 
+	const handleEnd = (caretOption: EndState['caret']) => {
+		if (caretOption === 'blink') {
+			blink(Infinity)
+		} else {
+			caret.style.opacity = caretOption === 'visible' ? '1' : '0'
+		}
+	}
+
 	async function typewriter(textArr: Texts, iterations: number) {
 		if (!textArr.length) return
 
 		for (let i = 0; iterations === 0 || i < iterations; i++) {
 			for (let j = 0; j < textArr.length; j++) {
+				const isLast = i === iterations - 1 && j === textArr.length - 1
 				const text = textArr[j]!
 
 				// Type text
@@ -102,6 +128,12 @@
 					await sleep(typeSpeed)
 				}
 				ontypeend?.(j)
+
+				// Finish the last iteration with text typed out
+				if (isLast && endState?.text === 'typed') {
+					handleEnd(endState.caret)
+					return
+				}
 
 				// Blink for specified duration
 				await blink(blinkCount - 0.5)
@@ -113,6 +145,12 @@
 					await sleep(deleteSpeed)
 				}
 				ondeleteend?.(j)
+
+				// Finish the last iteration with text deleted
+				if (isLast) {
+					handleEnd(endState!.caret)
+					return
+				}
 
 				// Wait before typing the next text
 				if (!blinksBetweenTexts) {
