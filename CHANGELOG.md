@@ -1,5 +1,17 @@
 # svelte-typewrite
 
+## 2.0.0
+
+### Major Changes
+
+- 9252aa5: added option for how the last iteration should end
+
+### Patch Changes
+
+- cce1dc2: added doc string for props
+- 42cd76f: refactor
+- 9353ea8: better typing for callback params
+
 ## 1.3.2
 
 ### Patch Changes
