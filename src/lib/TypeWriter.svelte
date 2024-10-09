@@ -19,13 +19,25 @@
 	type Props = {
 		/** Array of strings to be displayed */
 		texts: Texts
-		/** How fast the text is typed (in `ms/char`) */
+		/**
+		 * How fast the text is typed (in `ms/char`)
+		 * @defaultValue 60
+		 */
 		typeSpeed?: number
-		/** How fast the text is deleted (in `ms/char`) */
+		/**
+		 * How fast the text is deleted (in `ms/char`)
+		 * @defaultValue 40
+		 */
 		deleteSpeed?: number //
-		/** How long the pipe is displayed each "blink" (in `ms`) */
+		/**
+		 * How long the pipe is displayed each "blink" (in `ms`)
+		 * @defaultValue 600
+		 */
 		blinkDuration?: number
-		/** How many times the pipe is displayed after the text is typed */
+		/**
+		 * How many times the pipe is displayed after the text is typed
+		 * @defaultValue 3
+		 */
 		blinkCount?: number
 		/** Callback function that runs when typing animation starts. Receives the index of the text being typed */
 		ontypestart?: (index: Index) => void
@@ -37,18 +49,27 @@
 		ondeleteend?: (index: Index) => void
 	} & (
 		| {
-				/** How long to wait before starting to type the next text (in `ms`) */
+				/**
+				 * How long to wait before starting to type the next text (in `ms`)
+				 * @defaultValue 150
+				 */
 				waitBetweenTexts?: number
 				blinksBetweenTexts?: never
 		  }
 		| {
 				waitBetweenTexts?: never
-				/** How many times the pipe is displayed between texts */
+				/**
+				 * How many times the pipe is displayed between texts
+				 * @defaultValue 0
+				 */
 				blinksBetweenTexts?: number
 		  }
 	) &
 		({
-			/** Number of times to iterate through the texts. `0` for indefinitely */
+			/**
+			 * Number of times to iterate through the texts. `0` for indefinitely
+			 * @defaultValue 0
+			 */
 			repeat?: Repeat
 		} & (0 extends Repeat // When the `repeat` prop isn't passed, `Repeat` is `number`, so we need to do `0 extends Repeat` instead of `Repeat extends 0 | undefined`
 			? {
@@ -162,5 +183,16 @@
 		}
 	}
 </script>
+
+<!--
+@component
+TypeWriter component that types out an array of strings.
+
+```svelte
+<TypeWriter texts={['lorem ipsum', 'dolor sit amet']} />
+```
+
+[Docs](https://github.com/satohshi/svelte-typewriter/blob/main/README.md)
+-->
 
 <span>{textDisplayed}<span bind:this={caret}>|</span></span>
