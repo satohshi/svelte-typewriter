@@ -1,5 +1,13 @@
 # svelte-typewrite
 
+## 2.0.1
+
+### Patch Changes
+
+- 6d6ba22: better docs
+- 7ac0bc6: update dependencies
+- 666ffa8: export EndState interface
+
 ## 2.0.0
 
 ### Major Changes
