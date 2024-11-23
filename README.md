@@ -7,7 +7,7 @@ Typewriter component for Svelte that actually "types" one character at a time in
 ## Installation
 
 ```shell
-npm i svelte-typewrite
+npm i svelte-typewrite // without an "r" at the end
 ```
 
 ## Usage
