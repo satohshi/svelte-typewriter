@@ -11,6 +11,6 @@
 		"strict": true,
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
-		"noUncheckedIndexedAccess": true,
-	},
+		"noUncheckedIndexedAccess": true
+	}
 }
