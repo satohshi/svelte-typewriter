@@ -1,5 +1,11 @@
 # svelte-typewrite
 
+## 2.0.2
+
+### Patch Changes
+
+- b093344: update dependencies
+
 ## 2.0.1
 
 ### Patch Changes
