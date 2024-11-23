@@ -104,9 +104,11 @@
 
 	$effect(() => {
 		typewriter(texts, repeat ?? 0).catch((e: unknown) => {
+			// Ignore abort errors that are thrown by `a.cancel()` below
 			if (e instanceof DOMException && e.name === 'AbortError') return
 			console.error(e)
 		})
+
 		return () => {
 			caret.getAnimations().forEach((a) => a.cancel())
 			clearTimeout(timeout)
