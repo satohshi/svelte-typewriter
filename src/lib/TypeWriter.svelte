@@ -165,8 +165,8 @@
 
 				// Delete text
 				ondeletestart?.(j)
-				for (let k = 0; k <= text.length; k++) {
-					textDisplayed = text.slice(0, text.length - k)
+				for (let k = text.length; k >= 0; k--) {
+					textDisplayed = text.slice(0, k)
 					await sleep(deleteSpeed)
 				}
 				ondeleteend?.(j)
