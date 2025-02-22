@@ -2,7 +2,7 @@
 
 Typewriter component for Svelte that actually "types" one character at a time instead of just moving the caret at linear speed.
 
-![](preview.gif)
+![preview](https://github.com/user-attachments/assets/2c86a7fb-0f99-45d0-be53-fc15a4846765)
 
 ## Installation
 
