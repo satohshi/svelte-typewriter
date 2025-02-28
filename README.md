@@ -14,7 +14,7 @@ npm i svelte-typewrite // without an "r" at the end
 
 ```svelte
 <script>
-	import { TypeWriter } from 'svelte-typewrite'
+    import { TypeWriter } from 'svelte-typewrite'
 </script>
 
 <TypeWriter texts={['lorem ipsum', 'dolor sit amet']} />
@@ -43,10 +43,10 @@ npm i svelte-typewrite // without an "r" at the end
 
 ```ts
 interface EndState {
-	/** Whether to leave the text typed or deleted */
-	text: 'typed' | 'deleted'
-	/** Whether to leave the caret visible, hidden, or blinking */
-	caret: 'visible' | 'hidden' | 'blink'
+    /** Whether to leave the text typed or deleted */
+    text: 'typed' | 'deleted'
+    /** Whether to leave the caret visible, hidden, or blinking */
+    caret: 'visible' | 'hidden' | 'blink'
 }
 ```
 
