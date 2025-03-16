@@ -100,34 +100,55 @@
 
 	let caret: HTMLSpanElement
 	let textDisplayed = $state(' ')
-	let timeout: ReturnType<typeof setTimeout>
+	let abortController: AbortController
 
 	$effect(() => {
+		abortController = new AbortController()
+
 		typewriter(texts, repeat ?? 0).catch((e: unknown) => {
-			// Ignore abort errors that are thrown by `a.cancel()` below
+			// Ignore abort errors that are thrown during the cleanup
 			if (e instanceof DOMException && e.name === 'AbortError') return
 			console.error(e)
 		})
 
-		return () => {
-			caret.getAnimations().forEach((a) => a.cancel())
-			clearTimeout(timeout)
-		}
+		return () => abortController.abort()
 	})
 
 	const sleep = (ms: number) => {
-		return new Promise((resolve) => {
-			timeout = setTimeout(resolve, ms)
+		return new Promise<void>((resolve, reject) => {
+			let timeout: ReturnType<typeof setTimeout>
+
+			const abortHandler = () => {
+				clearTimeout(timeout)
+				reject(new DOMException('', 'AbortError'))
+			}
+
+			abortController.signal.addEventListener('abort', abortHandler)
+
+			timeout = setTimeout(() => {
+				abortController.signal.removeEventListener('abort', abortHandler)
+				resolve()
+			}, ms)
 		})
 	}
 
 	const blink = (iterations: number) => {
-		return caret.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
+		const animation = caret.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], {
 			iterations,
 			duration: blinkDuration,
 			delay: blinkDuration / 4,
 			easing: 'steps(2)',
-		}).finished
+		})
+
+		const abortHandler = () => animation.cancel()
+
+		abortController.signal.addEventListener('abort', abortHandler)
+
+		animation.addEventListener('finish', () => {
+			abortController.signal.removeEventListener('abort', abortHandler)
+		})
+
+		return animation.finished
 	}
 
 	const handleEnd = (caretOption: EndState['caret']) => {
