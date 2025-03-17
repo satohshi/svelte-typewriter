@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '../app.css'
 	import TypeWriter from '$lib/TypeWriter.svelte'
 
 	const lorem = [
