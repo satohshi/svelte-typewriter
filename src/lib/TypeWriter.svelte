@@ -1,10 +1,80 @@
 <script module lang="ts">
+	/**
+	 * Configuration for the final state after all iterations complete.  \
+	 * Required when `repeat > 0`.
+	 * @example
+	 * // Keep last text visible with blinking caret
+	 * endState: { text: 'typed', caret: 'blink' }
+	 *
+	 * @example
+	 * // Delete last text and hide caret
+	 * endState: { text: 'deleted', caret: 'hidden' }
+	 */
 	export interface EndState {
-		/** Whether to leave the text typed or deleted */
+		/**
+		 * The final state of the text after all iterations are complete.
+		 * - 'typed': The last text will remain visible
+		 * - 'deleted': The last text will be deleted
+		 */
 		text: 'typed' | 'deleted'
-		/** Whether to leave the caret visible, hidden, or blinking */
+		/**
+		 * The final state of the caret after all iterations are complete.
+		 * - 'visible': The caret will remain visible
+		 * - 'hidden': The caret will be hidden
+		 * - 'blink': The caret will continue blinking indefinitely
+		 */
 		caret: 'visible' | 'hidden' | 'blink'
 	}
+
+	/**
+	 * Controls caret behavior after text is fully typed and before deletion starts.  \
+	 * Choose between two modes:
+	 * 1. Blink mode: Caret blinks n times
+	 * ```ts
+	 * afterTyped: { blink: 3 } // Blink 3 times then start deleting
+	 * ```
+	 * 2. Wait mode: Pause for n milliseconds
+	 * ```ts
+	 * afterTyped: { wait: 150 } // Wait 150 milliseconds then start deleting
+	 * ```
+	 * @defaultValue { blink: 2.5 }
+	 */
+	export type AfterTyped =
+		| {
+				/** Milliseconds to wait before deletion starts */
+				wait: number
+				blink?: never
+		  }
+		| {
+				/** Number of times to blink before deletion starts */
+				blink: number
+				wait?: never
+		  }
+
+	/**
+	 * Controls caret behavior after text is fully deleted and before typing the next text.  \
+	 * Choose between two modes:
+	 * 1. Blink mode: Caret blinks n times
+	 * ```ts
+	 * afterDeleted: { blink: 3 } // Blink 3 times then start deleting
+	 * ```
+	 * 2. Wait mode: Pause for n milliseconds
+	 * ```ts
+	 * afterDeleted: { wait: 150 } // Wait 150 milliseconds then start deleting
+	 * ```
+	 * @defaultValue { wait: 150 }
+	 */
+	export type AfterDeleted =
+		| {
+				/** Milliseconds to wait before typing next text */
+				wait: number
+				blink?: never
+		  }
+		| {
+				/** Number of times to blink before typing next text */
+				blink: number
+				wait?: never
+		  }
 </script>
 
 <script lang="ts" generics="Texts extends readonly string[], Repeat extends number">
@@ -19,68 +89,109 @@
 	}[number]
 
 	type Props = {
-		/** Array of strings to be displayed */
-		texts: Texts
 		/**
-		 * How fast the text is typed (in `ms/char`)
+		 * Array of strings to be displayed in sequence.
+		 */
+		texts: Texts
+
+		/**
+		 * Number of times to iterate through the texts.
+		 * - Set to `0` for infinite repetition
+		 * - Set to a positive number (n) to repeat n times
+		 * - When set to a positive number, `endState` prop becomes required
+		 * @defaultValue 0
+		 */
+		repeat?: Repeat
+
+		/**
+		 * Speed of typing animation in milliseconds per character.
 		 * @defaultValue 60
 		 */
 		typeSpeed?: number
+
 		/**
-		 * How fast the text is deleted (in `ms/char`)
+		 * Speed of deleting animation in milliseconds per character.
 		 * @defaultValue 40
 		 */
-		deleteSpeed?: number //
+		deleteSpeed?: number
+
 		/**
-		 * How long the pipe is displayed each "blink" (in `ms`)
+		 * Duration of one complete caret blink cycle in milliseconds.
 		 * @defaultValue 600
 		 */
 		blinkDuration?: number
+
 		/**
-		 * How many times the pipe is displayed after the text is typed
-		 * @defaultValue 3
+		 * Controls caret behavior after text is fully typed and before deletion starts.  \
+		 * Choose between two modes:
+		 * 1. Blink mode: Caret blinks n times
+		 * ```ts
+		 * afterTyped: { blink: 3 } // Blink 3 times then start deleting
+		 * ```
+		 * 2. Wait mode: Pause for n milliseconds
+		 * ```ts
+		 * afterTyped: { wait: 150 } // Wait 150 milliseconds then start deleting
+		 * ```
+		 * @defaultValue { blink: 2.5 }
 		 */
-		blinkCount?: number
-		/** Callback function that runs when typing animation starts. Receives the index of the text being typed */
+		afterTyped?: AfterTyped
+
+		/**
+		 * Controls caret behavior after text is fully deleted and before typing the next text.  \
+		 * Choose between two modes:
+		 * 1. Blink mode: Caret blinks n times
+		 * ```ts
+		 * afterDeleted: { blink: 3 } // Blink 3 times then start deleting
+		 * ```
+		 * 2. Wait mode: Pause for n milliseconds
+		 * ```ts
+		 * afterDeleted: { wait: 150 } // Wait 150 milliseconds then start deleting
+		 * ```
+		 * @defaultValue { wait: 150 }
+		 */
+		afterDeleted?: AfterDeleted
+
+		/**
+		 * Callback fired when typing animation begins for each text.
+		 * @param index - Zero-based index of the text being typed
+		 */
 		ontypestart?: (index: Index) => void
-		/** Callback function that runs when typing animation ends. Receives the index of the text that was just typed */
+
+		/**
+		 * Callback fired when typing animation completes for each text.
+		 * @param index - Zero-based index of the text that was typed
+		 */
 		ontypeend?: (index: Index) => void
-		/** Callback function that runs when deleting animation starts. Receives the index of the text being deleted */
+
+		/**
+		 * Callback fired when deletion animation begins for each text.
+		 * @param index - Zero-based index of the text being deleted
+		 */
 		ondeletestart?: (index: Index) => void
-		/** Callback function that runs when deleting animation ends. Receives the index of the text that was just deleted */
+
+		/**
+		 * Callback fired when deletion animation completes for each text.
+		 * @param index - Zero-based index of the text that was deleted
+		 */
 		ondeleteend?: (index: Index) => void
-	} & (
-		| {
+	} & (0 extends Repeat
+		? {
+				endState?: never
+			}
+		: {
 				/**
-				 * How long to wait before starting to type the next text (in `ms`)
-				 * @defaultValue 150
+				 * Configuration for the final state after all iterations complete.  \
+				 * Required when `repeat > 0`.
+				 * @example
+				 * // Keep last text visible with blinking caret
+				 * endState: { text: 'typed', caret: 'blink' }
+				 *
+				 * @example
+				 * // Delete last text and hide caret
+				 * endState: { text: 'deleted', caret: 'hidden' }
 				 */
-				waitBetweenTexts?: number
-				blinksBetweenTexts?: never
-		  }
-		| {
-				waitBetweenTexts?: never
-				/**
-				 * How many times the pipe is displayed between texts
-				 * @defaultValue 0
-				 */
-				blinksBetweenTexts?: number
-		  }
-	) &
-		({
-			/**
-			 * Number of times to iterate through the texts. `0` for indefinitely
-			 * @defaultValue 0
-			 */
-			repeat?: Repeat
-		} & (0 extends Repeat // When the `repeat` prop isn't passed, `Repeat` is `number`, so we need to do `0 extends Repeat` instead of `Repeat extends 0 | undefined`
-			? {
-					endState?: never
-				}
-			: {
-					/** Options for the end state of animation */
-					endState: EndState
-				}))
+				endState: EndState
+			})
 
 	let {
 		texts,
@@ -89,9 +200,8 @@
 		typeSpeed = 60,
 		deleteSpeed = 40,
 		blinkDuration = 600,
-		blinkCount = 3,
-		waitBetweenTexts = 150,
-		blinksBetweenTexts,
+		afterTyped = { blink: 2.5 },
+		afterDeleted = { wait: 150 },
 		ontypestart,
 		ontypeend,
 		ondeletestart,
@@ -176,13 +286,17 @@
 				ontypeend?.(j)
 
 				// Finish the last iteration with text typed out
-				if (isLast && endState?.text === 'typed') {
-					handleEnd(endState.caret)
+				if (isLast && endState!.text === 'typed') {
+					handleEnd(endState!.caret)
 					return
 				}
 
-				// Blink for specified duration
-				await blink(blinkCount - 0.5)
+				// before deleting the text
+				if ('blink' in afterTyped) {
+					await blink(afterTyped.blink!)
+				} else {
+					await sleep(afterTyped.wait)
+				}
 
 				// Delete text
 				ondeletestart?.(j)
@@ -199,10 +313,10 @@
 				}
 
 				// Wait before typing the next text
-				if (!blinksBetweenTexts) {
-					await sleep(waitBetweenTexts)
+				if ('blink' in afterDeleted) {
+					await blink(afterDeleted.blink!)
 				} else {
-					await blink(blinksBetweenTexts)
+					await sleep(afterDeleted.wait)
 				}
 			}
 		}
@@ -211,13 +325,15 @@
 
 <!--
 @component
-TypeWriter component that types out an array of strings.
+TypeWriter component for Svelte
+
+### Basic usage
 
 ```svelte
 <TypeWriter texts={['lorem ipsum', 'dolor sit amet']} />
 ```
 
-[Docs](https://github.com/satohshi/svelte-typewriter/blob/main/README.md)
+[Docs](https://github.com/satohshi/svelte-typewriter)
 -->
 
 <span>{textDisplayed}<span bind:this={caret}>|</span></span>
