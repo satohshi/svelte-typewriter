@@ -4,6 +4,10 @@ Typewriter component for Svelte that actually "types" one character at a time in
 
 ![demo](https://github.com/user-attachments/assets/eac207c9-2c1f-47f5-9661-f601983c4950)
 
+## Demo
+
+<https://satohshi.github.io/svelte-typewriter/>
+
 ## Installation
 
 ```shell
