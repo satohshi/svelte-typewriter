@@ -1,6 +1,6 @@
 {
 	"name": "svelte-typewrite",
-	"version": "2.0.2",
+	"version": "3.0.0",
 	"description": "Svelte component for typewriter effects",
 	"author": "satohshi",
 	"repository": {
