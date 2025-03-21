@@ -1,5 +1,15 @@
 # svelte-typewrite
 
+## 3.0.0
+
+### Major Changes
+
+- 69095d1: change options format and defaults
+
+### Patch Changes
+
+- 5ce5d5a: fix insufficient cleanup
+
 ## 2.0.2
 
 ### Patch Changes
