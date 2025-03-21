@@ -8,6 +8,8 @@ Typewriter component for Svelte that actually "types" one character at a time in
 
 ```shell
 npm i svelte-typewrite // without an "r" at the end
+
+pnpm add svelte-typewrite
 ```
 
 ## Usage
@@ -30,21 +32,41 @@ npm i svelte-typewrite // without an "r" at the end
 
 ### Options
 
-| Name                 |    Type    |   Default   | Description                                                                                                     |
-| -------------------- | :--------: | :---------: | --------------------------------------------------------------------------------------------------------------- |
-| `repeat`             |  `number`  |     `0`     | How many times `texts` should be looped over (`0` for indefinitely)                                             |
-| `endState`           | `EndState` | `undefined` | What to do after typing the very last text<br>**_Required_** if `repeat > 0`                                    |
-| `typeSpeed`          |  `number`  |    `60`     | Speed at which the text is typed (in `ms/char`)                                                                 |
-| `deleteSpeed`        |  `number`  |    `40`     | Speed at which the text is deleted (in `ms/char`)                                                               |
-| `blinkDuration`      |  `number`  |    `600`    | Duration of each "blink" of caret (in `ms`)                                                                     |
-| `blinkCount`         |  `number`  |     `3`     | Number of blinks after the text is typed                                                                        |
-| `waitBetweenTexts`   |  `number`  |    `150`    | How long to wait before starting to type the next text (in `ms`)<br>Will be ignored if `blinksBetweenTexts > 0` |
-| `blinksBetweenTexts` |  `number`  | `undefined` | How many times the caret should blink before starting to type the next text                                     |
+| Name            |      Type      |     Default      | Description                                                                  |
+| --------------- | :------------: | :--------------: | ---------------------------------------------------------------------------- |
+| `repeat`        |    `number`    |       `0`        | Number of times to iterate through the texts (`0` for indefinitely)          |
+| `endState`      |   `EndState`   |   `undefined`    | What to do after typing the very last text<br>**_Required_** if `repeat > 0` |
+| `typeSpeed`     |    `number`    |       `60`       | How fast the text is typed (in `ms/char`)                                    |
+| `deleteSpeed`   |    `number`    |       `40`       | How fast the text is deleted (in `ms/char`)                                  |
+| `blinkDuration` |    `number`    |      `600`       | Duration of each "blink" of caret (in `ms`)                                  |
+| `afterTyped`    |  `AfterTyped`  | `{ blink: 2.5 }` | What caret should do after typing and before deleting the text               |
+| `afterDeleted`  | `AfterDeleted` | `{ wait: 150 }`  | What caret should do after deleting the text and before typing the next text |
 
 ```ts
+type AfterTyped =
+    | {
+          /** How long to wait before starting to delete the text (in `ms`) */
+          wait: number
+      }
+    | {
+          /** How many times the caret should blink before starting to delete the text */
+          blink: number
+      }
+
+type AfterDeleted =
+    | {
+          /** How long to wait before starting to type the next text (in `ms`) */
+          wait: number
+      }
+    | {
+          /** How many times the caret should blink before starting to type the next text */
+          blink: number
+      }
+
 interface EndState {
-    /** Whether to leave the text typed or deleted */
+    /** Whether to leave the last text typed or deleted */
     text: 'typed' | 'deleted'
+
     /** Whether to leave the caret visible, hidden, or blinking */
     caret: 'visible' | 'hidden' | 'blink'
 }
