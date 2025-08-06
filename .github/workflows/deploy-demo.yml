@@ -5,6 +5,9 @@ on:
     branches: 'main'
     paths:
       - 'src/**'
+  release:
+    types: [created]
+  workflow_dispatch:
 
 jobs:
   build_site:
